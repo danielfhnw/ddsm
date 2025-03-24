@@ -3,6 +3,7 @@ Dieses Repo enthält die Software zur Bewegung der beiden [DDSM210](https://www.
 
 ![](https://github.com/danielfhnw/ddsm/blob/main/img/Hardware.jpg)
 
+Wie in der Abbildung dargestellt, muss die USB Verbindung und die Spannungsversorgung angeschlossen werden. Die Spannugnsversorgung sollte sich zwischen 11 V und 22 V befinden.
 Im folgenden wird die Installation beschrieben.
 
 ## Installation 
