@@ -48,9 +48,9 @@ if __name__ == "__main__":
         data = ser.readline().decode('utf-8')
         if data:
             print(f"Received: {data}", end='')
-
-        vel = 2100
-        acc = 3
+ 
+        vel = 500
+        acc = 10
         arrow = 'none'
         old_arrow = 'none'
 
@@ -59,6 +59,9 @@ if __name__ == "__main__":
 
         while True:
             start = time.time()
+            if keyboard.is_pressed('space'):
+                vel = 2100
+                acc = 3
             if keyboard.is_pressed('up'):
                 arrow = 'up'
                 command1 = "{\"T\":10010,\"id\":1,\"cmd\":" + str(vel) + ",\"act\":" + str(acc) + "}"
@@ -77,8 +80,10 @@ if __name__ == "__main__":
                 command2 = "{\"T\":10010,\"id\":2,\"cmd\":" + str(vel//2) + ",\"act\":" + str(acc) + "}"
             else:
                 arrow = 'none'
+                vel = 500
                 command1 = "{\"T\":10010,\"id\":1,\"cmd\":0,\"act\":" + str(acc) + "}"
                 command2 = "{\"T\":10010,\"id\":2,\"cmd\":0,\"act\":" + str(acc) + "}"
+                acc = 10
             
             if arrow != old_arrow:
                 old_arrow = arrow
