@@ -10,7 +10,7 @@ if __name__ == "__main__":
         load_dotenv()
         com_port_motor = os.getenv("COM_PORT_MOTOR")
 
-        ser = serial.Serial(com_port_motor, baudrate=115200, dsrdtr=None)
+        ser = serial.Serial(com_port_motor, baudrate=115200, dsrdtr=None, timeout=0.1)
         ser.setRTS(False)
         ser.setDTR(False)
 
@@ -24,12 +24,33 @@ if __name__ == "__main__":
         if data:
             print(f"Received: {data}", end='')
 
-        command = "{\"T\":11001,\"time\":-1}"
+        command = "{\"T\":11001,\"time\":1000}"
         ser.write(command.encode() + b'\n')
         print(f"Sent: {command}")
 
-        vel = 1000
-        acc = 5
+        data = ser.readline().decode('utf-8')
+        if data:
+            print(f"Received: {data}", end='')
+
+        # mode to speed control
+        command = "{\"T\":10012,\"id\":1,\"mode\":2}"
+        ser.write(command.encode() + b'\n')
+        print(f"Sent: {command}")
+
+        data = ser.readline().decode('utf-8')
+        if data:
+            print(f"Received: {data}", end='')
+
+        command = "{\"T\":10012,\"id\":2,\"mode\":2}"
+        ser.write(command.encode() + b'\n')
+        print(f"Sent: {command}")
+
+        data = ser.readline().decode('utf-8')
+        if data:
+            print(f"Received: {data}", end='')
+
+        vel = 2100
+        acc = 3
         arrow = 'none'
         old_arrow = 'none'
 
@@ -76,12 +97,11 @@ if __name__ == "__main__":
                 vel2 = data['spd']
 
             print(f"vel1: {vel1},\t vel2: {vel2}")
-            sleep_time = 0.2 - (time.time() - start)
+            sleep_time = 0.1 - (time.time() - start)
             time.sleep(max(0, sleep_time))
                 
     except Exception as e:
         print(f"An error occurred: {e}")
-        print(e.with_traceback())
         print("Exiting...")
     finally:
         ser.close()
