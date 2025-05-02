@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import serial
 import keyboard
+import json
 import time
 
 if __name__ == "__main__":
@@ -9,7 +10,7 @@ if __name__ == "__main__":
         load_dotenv()
         com_port_motor = os.getenv("COM_PORT_MOTOR")
 
-        ser = serial.Serial(com_port_motor, baudrate=115200, dsrdtr=None, timeout=0.05)
+        ser = serial.Serial(com_port_motor, baudrate=115200, dsrdtr=None)
         ser.setRTS(False)
         ser.setDTR(False)
 
@@ -27,16 +28,16 @@ if __name__ == "__main__":
         ser.write(command.encode() + b'\n')
         print(f"Sent: {command}")
 
-        data = ser.readline().decode('utf-8')
-        if data:
-            print(f"Received: {data}", end='')
-
         vel = 1000
         acc = 5
         arrow = 'none'
         old_arrow = 'none'
 
+        vel1 = 0
+        vel2 = 0
+
         while True:
+            start = time.time()
             if keyboard.is_pressed('up'):
                 arrow = 'up'
                 command1 = "{\"T\":10010,\"id\":1,\"cmd\":" + str(vel) + ",\"act\":" + str(acc) + "}"
@@ -63,17 +64,25 @@ if __name__ == "__main__":
                 print(f"Sent: {command1} and {command2}")
 
             ser.write(command1.encode() + b'\n')
-            data = ser.readline().decode('utf-8')
-            if data:
-                print(f"Received: {data}", end='')
-            ser.write(command2.encode() + b'\n')
-            data = ser.readline().decode('utf-8')
-            if data:
-                print(f"Received: {data}", end='')
-                
+            data_str = ser.readline().decode('utf-8')
+            if data_str:
+                data = json.loads(data_str)
+                vel1 = data['spd']
 
-    except KeyboardInterrupt:
-        pass
+            ser.write(command2.encode() + b'\n')
+            data_str = ser.readline().decode('utf-8')
+            if data_str:
+                data = json.loads(data_str)
+                vel2 = data['spd']
+
+            print(f"vel1: {vel1},\t vel2: {vel2}")
+            sleep_time = 0.2 - (time.time() - start)
+            time.sleep(max(0, sleep_time))
+                
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        print(e.with_traceback())
+        print("Exiting...")
     finally:
         ser.close()
         print("Serial port closed.")
